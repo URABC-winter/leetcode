@@ -53,3 +53,17 @@ select s1.`student_id`,s1.`student_name`,s2.`subject_name`,COALESCE(count(e.`stu
 5.最后进行排序。
 select s1.`student_id`,s1.`student_name`,s2.`subject_name`,COALESCE(count(e.`student_id`),0) AS `attended_exams` from `Students` s1 CROSS JOIN (select * from `Subjects`) s2 LEFT JOIN `Examinations` e ON s2.`subject_name` = e.`subject_name` AND  s1.`student_id` = e.`student_id` group by s1.`student_id`,s2.`subject_name` order by student_id;
 ```
+570. 至少有5名直接下属的经理
+```
+1.进行分组，并计数managerId，having过滤到countNum需要大于等于5次。获取计数managerId与达到5次的结果集。
+#select `managerId`,count(`managerId`) As `countNum` from `Employee` e1 group by `managerId` having `countNum` >= 5
+2.将上述的结果集作为子查询，Employee交叉连接子查询，并进行id等于子查询中managerId的过滤
+#select `name` from `Employee` e1 CROSS JOIN (select `managerId`,count(`managerId`) As `countNum` from `Employee` e1 group by `managerId` having `countNum` >= 5) e2 where e1.`id` = e2.`managerId`;
+```
+1934. 确认率
+```
+1.首先左连接，并进行选择连接条件。获取对应user_id，以及匹配的所有action。
+#select s.`user_id`, c.`action` AS `average_rate` from `Signups` s LEFT JOIN `Confirmations` c ON s.`user_id` = c.`user_id`;
+2.以user_id进行组合，根据AVG进行计算平均数，count进行小数点保留。
+#select s.`user_id`, ROUND(AVG(CASE WHEN c.`action` = "confirmed" THEN 1 WHEN c.`action` = "timeout" THEN 0  ELSE 0 END), 2) AS `confirmation_rate` from `Signups` s LEFT JOIN `Confirmations` c ON s.`user_id` = c.`user_id` group by s.`user_id`;
+```
